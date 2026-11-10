@@ -32,8 +32,8 @@ class DiscoveryTests(unittest.TestCase):
         self.file("models/deeper/than/allowed/hidden.gguf")
         self.file("runtime/not-a-program.txt")
         result = model_setup.discover(self.root)
-        self.assertEqual([x["path"] for x in result["engines"]], [str(engine)])
-        self.assertEqual([x["path"] for x in result["models"]], [str(model)])
+        self.assertEqual([x["path"] for x in result["engines"]], [str(engine.resolve())])
+        self.assertEqual([x["path"] for x in result["models"]], [str(model.resolve())])
 
     def test_discovery_does_not_follow_symlinks(self):
         outside = self.root / "private"

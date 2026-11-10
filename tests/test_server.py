@@ -104,7 +104,7 @@ class ServerTests(unittest.TestCase):
         conn.request(
             method,
             path,
-            body=raw if raw is not None else json.dumps(data or {}),
+            body=None if method == "GET" and raw is None else raw if raw is not None else json.dumps(data or {}),
             headers=h,
         )
         r = conn.getresponse()

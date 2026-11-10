@@ -129,10 +129,6 @@ class OfflineTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 offline.import_files(self.db, [self.source(name, data)])
 
-
-if __name__ == "__main__":
-    unittest.main()
-
     def test_generation_contract_uses_offline_mode_and_bounded_probe(self):
         engine = self.source("engine.exe", b"synthetic")
         engine.chmod(0o700)
@@ -150,3 +146,7 @@ if __name__ == "__main__":
         self.assertEqual(args[args.index("-n") + 1], "64")
         self.assertNotIn("shell", popen.call_args.kwargs)
         self.assertFalse(any(k.startswith(("LLAMA_", "HF_")) for k in popen.call_args.kwargs["env"]))
+
+
+if __name__ == "__main__":
+    unittest.main()
