@@ -31,13 +31,15 @@
 
 Поиск источников не является векторным. Даже при просьбе использовать только источники модель может выдумать ответ; это обнаружено в тестах. Проверяйте оригинальные цитаты. Приложение не предоставляет модели инструменты выполнения кода, файловых операций или сетевых запросов.
 
+Если модель выводит пустой начальный блок `<think></think>`, адаптер удаляет только этот блок. Непустые рассуждения не вырезаются: они могут занимать лимит ответа. Дополнительная проверка Qwen3-1.7B Q8_0 выявила именно такую проблему, ошибки следования инструкциям и задержки до 53,364 с. Эта модель не выбрана как универсальная рекомендация. [Все 12 наблюдений и условия](QWEN3.md).
+
 ## English
 
-Download an official llama.cpp release for your platform, extract all companion libraries, and choose a compatible instruction-tuned GGUF model after checking its license and memory needs. In Settings, enter absolute paths to `llama-completion` / `llama-completion.exe` and the `.gguf` file. File connection is not a compatibility guarantee: ask a short question to test inference. Initial downloads require internet; subsequent local inference can work without it. The tested small Qwen models have serious quality limits; see the raw validation evidence. Model file size is not peak RAM usage.
+Download an official llama.cpp release for your platform, extract all companion libraries, and choose a compatible instruction-tuned GGUF model after checking its license and memory needs. In Settings, enter absolute paths to `llama-completion` / `llama-completion.exe` and the `.gguf` file. Click **Connect and check** to see the model name, actual answer and elapsed time. Alternatively, discover files placed in `runtime` and `models` beside `server.py`. The check is cancellable, limited to 64 tokens and 60 seconds, and excluded from conversation history. It verifies startup, not overall answer quality. Initial downloads require internet; subsequent local inference can work without it. The tested small Qwen models have serious quality limits; see the raw validation evidence. Model file size is not peak RAM usage.
 
 ## 中文
 
-下载适合系统的官方 llama.cpp 版本，完整解压配套库。选择兼容的 GGUF 指令模型并检查许可证和内存要求。在设置中输入运行程序及模型文件的完整路径。文件连接成功不代表兼容性已确认，请通过实际提问验证。首次下载需要网络，之后可离线生成。实测小型 Qwen 模型存在明显质量限制，请查看原始测试记录。文件大小不等于运行所需内存。
+下载适合系统的官方 llama.cpp 版本，完整解压配套库。选择兼容的 GGUF 指令模型并检查许可证和内存要求。在设置中输入运行程序及模型文件的完整路径。点击“连接并检查”，查看模型名称、实际回答和耗时。也可以查找 `server.py` 旁的 `runtime` 和 `models` 文件夹中的文件。检查可停止，最多生成 64 个 token、等待 60 秒，不加入对话历史。它只检查启动情况，不代表整体回答质量。首次下载需要网络，之后可离线生成。实测小型 Qwen 模型存在明显质量限制，请查看原始测试记录。文件大小不等于运行所需内存。
 
 ## Подготовленные папки и проверка запуска
 
@@ -49,6 +51,6 @@ Download an official llama.cpp release for your platform, extract all companion 
 
 Движок запускается с явным `--offline`. Это дополнительный режим официального llama.cpp, а не системная сетевая песочница. Для полного испытания автономности по-прежнему нужен запрет сети средствами ОС.
 
-Эти изменения подготовлены после версии 0.3.0. Повторная проверка интерфейса и реального движка на Mac ожидает восстановления локальной среды; результаты предыдущих испытаний остаются в VALIDATION.md.
+В версии 0.3.1 проверка Qwen2.5-1.5B Q4_K_M на Mac вернула «4»: 2,87 и 3,09 секунды через интерфейс, 3,16 секунды в отдельном прогоне с запретом сети ОС. Настройки вручную проверены на настольном экране и при ширине 390 px на RU/EN/ZH. [Снимок настоящей проверки](images/model-setup.jpg), условия и ограничения — в [VALIDATION.md](VALIDATION.md).
 
 Браузерный сценарий CI запускается в отдельной временной копии с синтетическим движком: подключение, отмена, повтор, отсутствие проверочного вопроса в истории, RU/EN/ZH при ширине 390 px. Он проверяет интерфейс и вызов процесса, но не способности настоящей модели. Скриншоты сохраняются в артефакте GitHub Actions.

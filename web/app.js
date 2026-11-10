@@ -905,8 +905,14 @@ function renderModelCheck() {
     $('probeResult').hidden = !result;
     if (!result) return;
     $('probeSummary').textContent = t(result.status === 'passed' ? 'checkPassed' : 'checkUnexpected');
-    $('probeTime').textContent = t('checkTime') + ' ' + result.elapsed_seconds;
+    $('probeTime').textContent = result.model_name + ' · ' + t('checkTime') + ' ' + result.elapsed_seconds;
     $('probeAnswer').textContent = result.answer;
+}
+function setupStatus(key) {
+    const status = $('settingsStatus');
+    if (key) status.dataset.t = key;
+    else delete status.dataset.t;
+    status.textContent = key ? t(key) : '';
 }
 async function openSettings() {
     $('settingsDialog').showModal();
@@ -920,6 +926,7 @@ $('discoverModels').onclick = () => run(async () => {
         const select = $(selectId);
         select.replaceChildren();
         const manual = el('option', t('manualPath'));
+        manual.dataset.t = 'manualPath';
         manual.value = '';
         select.append(manual);
         for (const file of options[key]) {
@@ -930,7 +937,7 @@ $('discoverModels').onclick = () => run(async () => {
     }
     const found = options.engines.length + options.models.length > 0;
     $('discoveredModels').hidden = !found;
-    $('settingsStatus').textContent = t(found ? 'filesFound' : 'nothingFound');
+    setupStatus(found ? 'filesFound' : 'nothingFound');
 });
 $('engineChoice').onchange = () => {
     if ($('engineChoice').value) $('enginePath').value = $('engineChoice').value;
@@ -947,16 +954,16 @@ async function checkConnectedModel() {
     $('cancelCheck').hidden = false;
     $('cancelCheck').disabled = false;
     $('probeResult').hidden = true;
-    $('settingsStatus').textContent = t('checkRunning');
+    setupStatus('checkRunning');
     $('status').textContent = t('checkRunning');
     try {
         await api('model/check', {request_id: pending});
         await refresh();
-        $('settingsStatus').textContent = '';
+        setupStatus();
         $('status').textContent = '';
     } catch (error) {
         await refresh().catch(() => {});
-        $('settingsStatus').textContent = t(error.message);
+        setupStatus(error.message);
         $('status').textContent = t(error.message);
     } finally {
         pending = null;
@@ -971,7 +978,7 @@ $('cancelCheck').onclick = () => run(async () => {
     if (!pending) return;
     await api('chat/cancel', {request_id: pending});
     $('cancelCheck').disabled = true;
-    $('settingsStatus').textContent = t('stopping');
+    setupStatus('stopping');
 });
 $('checkModel').onclick = () => run(checkConnectedModel);
 $('modelForm').onsubmit = event => {
@@ -986,7 +993,7 @@ $('modelForm').onsubmit = event => {
             await refresh();
             await checkConnectedModel();
         } catch (error) {
-            $('settingsStatus').textContent = t(error.message);
+            setupStatus(error.message);
         }
     });
 };

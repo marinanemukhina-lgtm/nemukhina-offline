@@ -2,6 +2,14 @@
 
 final result: passed
 
+## v0.3.1 setup review
+
+- Manually reviewed the model setup dialog at 1440 × 1024 and 390 × 844 in RU, EN and ZH. At 390 px, page width is 390 and dialog client/scroll widths are both 364 px. No horizontal overflow in the tested states.
+- Connected actual Qwen2.5-1.5B Q4_K_M through the form, received `4`, reloaded the page and repeated the check. The result now identifies its model beside elapsed time. Evidence: `docs/images/model-setup.jpg`, an unedited capture of the scrolled result section.
+- Fixed a localization defect found during review: the discovery notice and manual-path options now update when the interface language changes. Manually verified EN → ZH → EN; the CI browser scenario covers the regression with synthetic files.
+- Closing settings returned focus to the settings control. No console error/warn entries in the final observed state. Reset the temporary viewport and restored Russian.
+- The setup result is an actual startup check, not a model-quality score. Earlier design evidence and remaining accessibility limits below still apply.
+
 ## Evidence and normalization
 
 - Source visual truth: `docs/images/design-reference.png`, 1487 × 1058 px.

@@ -78,6 +78,7 @@ with tempfile.TemporaryDirectory(prefix="nemukhina-ui-") as temporary:
                 page.locator("#modelForm button").click()
                 expect(page.locator("#probeSummary")).to_contain_text("ответила на контрольный вопрос", timeout=15000)
                 expect(page.locator("#probeAnswer")).to_have_text("4")
+                expect(page.locator("#probeTime")).to_contain_text("synthetic.gguf")
                 page.screenshot(path=str(OUTPUT / "setup-desktop.png"))
                 page.locator("#settingsDialog .close").click()
                 expect(page.locator("#modelHint")).to_contain_text("прошла проверку")
@@ -98,11 +99,23 @@ with tempfile.TemporaryDirectory(prefix="nemukhina-ui-") as temporary:
                 page.locator("#settingsDialog .close").click()
                 page.locator("#send").click()
                 expect(page.locator("#answer")).to_have_text("4", timeout=15000)
+                page.locator("#settings").click()
+                page.locator("#discoverModels").click()
+                expect(page.locator("#settingsStatus")).to_contain_text("Найденные файлы")
+                page.locator("#settingsDialog .close").click()
+                discovery_labels = {
+                    "ru": ("Найденные файлы", "Указать путь вручную"),
+                    "en": ("Detected files", "Enter path manually"),
+                    "zh": ("找到的文件", "手动输入路径"),
+                }
                 for language in ("ru", "en", "zh"):
                     page.set_viewport_size({"width": 390, "height": 844})
                     page.locator("#lang").select_option(language)
                     page.locator("#settings").click()
                     expect(page.locator("#settingsDialog")).to_be_visible()
+                    notice, manual = discovery_labels[language]
+                    expect(page.locator("#settingsStatus")).to_contain_text(notice)
+                    expect(page.locator('#engineChoice option[value=""]')).to_have_text(manual)
                     sizes = page.locator("#settingsDialog").evaluate(
                         "(el) => ({scroll:el.scrollWidth, client:el.clientWidth})"
                     )

@@ -200,6 +200,9 @@ def generate(engine, model, prompt, cancel_event=None, *, max_tokens=512, timeou
             "Local engine failed; check model compatibility and llama.cpp version"
         )
     answer = stdout.strip().removesuffix("[end of text]").rstrip()
+    # Qwen3 can prefix a direct answer with an empty reasoning envelope.
+    # Remove only that leading empty envelope; never discard nonempty content.
+    answer = re.sub(r"\A<think>\s*</think>\s*", "", answer, count=1)
     if not answer:
         raise ValueError("Local engine returned no answer")
     return answer

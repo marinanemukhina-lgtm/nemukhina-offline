@@ -29,7 +29,7 @@ python3 server.py
 
 Windows 使用 `py -3 server.py`。打开 **http://127.0.0.1:8765**，选择中文。按 `Ctrl+C` 停止服务器。
 
-点击“连接模型”，填写官方 `llama-completion` 可执行文件及兼容的 GGUF 指令模型的完整路径。首次下载需要网络；应用不会自动下载。准备完毕后可以离线生成回答。没有模型也能搜索资料和备份。参见[模型设置](MODELS.md)。
+点击“连接模型”，填写官方 `llama-completion` 可执行文件及兼容的 GGUF 指令模型的完整路径，再点击“连接并检查”。也可以将完整解压的运行程序放入 `server.py` 旁的 `runtime` 文件夹，将模型放入 `models`，然后点击“查找已准备的文件”。检查会显示模型名称、实际回答和耗时，但不代表整体回答质量。首次下载需要网络；应用不会自动下载。准备完毕后可以离线生成回答。没有模型也能搜索资料和备份。参见[模型设置](MODELS.md)。
 
 ```sh
 python3 server.py --engine /path/to/llama-completion --model /path/to/model.gguf
