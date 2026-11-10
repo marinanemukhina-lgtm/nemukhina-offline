@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 — 2026-11-10
+
+- General conversations without required documents; bounded multi-turn context.
+- Persistent conversation history, renaming, recoverable archive, and Markdown exports.
+- Local model configuration in the UI; cancellable inference with process cleanup.
+- Atomic workspace backups v2 with v1 compatibility and conflict-preserving merge.
+- A reference-led welcome screen, original paper illustration, dedicated conversation/result view, and responsive RU/EN/ZH layouts.
+- Vendored Lora and Tabler assets with license notices; no remote UI assets.
+- 33 local tests and two reproducible 12-task model reports under OS network denial. Reports include failures and hallucinations.
+
 ## 0.2.0 — 2026-11-10
 
 - Local browser UI in Russian, English and Chinese; responsive layout and keyboard focus states.

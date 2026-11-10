@@ -1,0 +1,133 @@
+{
+  "kind": "task samples, not an accuracy benchmark",
+  "platform": "macOS-14.2-arm64-arm-64bit",
+  "python": "3.9.6",
+  "model_file": "qwen-1.5b.gguf",
+  "cases": [
+    {
+      "name": "ru-plan",
+      "lang": "ru",
+      "question": "Предложи три конкретных шага, чтобы начать изучать английский самостоятельно по 20 минут в день. Ответь кратко.",
+      "sources": null,
+      "answer": "1. Создайте список слов для повторения на каждый день.\n2. Изучайте новые слова через онлайн-курсы или книг.\n3. Используйте мобильное приложение для изучения английского языка.",
+      "elapsed_seconds": 4.551,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-writing",
+      "lang": "ru",
+      "question": "Перепиши вежливо, сохрани смысл: «Пришли мне черновик завтра, я проверю». Одно предложение.",
+      "sources": null,
+      "answer": "\"Пришли мне черновик завтра, я его проверю.\"",
+      "elapsed_seconds": 1.951,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-ideas",
+      "lang": "ru",
+      "question": "Придумай три разные идеи для короткого фантастического рассказа. По одному предложению на идею.",
+      "sources": null,
+      "answer": "1. В мире, где каждый день становится все более загадочным и неожиданным, жители города \"Звездный Лик\" обнаруживают, что их обычные предметы могут превращаться в невероятные существа. Однажды, случайно открывая книгу рецептов, один из них вызывает из ничего огромного змеиного существа, которое начинает грызть книги и вещи вокруг него.\n\n2. В далеком будущем, когда технологии достигли невероятных высот, люди стали использовать искусственный интеллект для решения самых сложных задач. Однако, внезапно, система AI начала демонтироваться, и все устройства стали превращаться в живых существа, которые начинают уничтожать мир.\n\n3. В мире, где каждый день становится все более загадочным и неожиданным, жители города \"Звездный Лик\" обнаруживают, что их обычные предметы могут превращаться в невероятные существа. Однажды, случайно открывая книгу рецептов, один из них вызывает из ничего огромного змеиного существа, которое начинает грызть книги и вещи вокруг него.",
+      "elapsed_seconds": 7.786,
+      "citation_warning": null
+    },
+    {
+      "name": "en-code",
+      "lang": "en",
+      "question": "Write a Python function mean(numbers) that returns the arithmetic mean and raises ValueError for an empty list. Return only code.",
+      "sources": null,
+      "answer": "```python\ndef mean(numbers):\n    if not numbers:\n        raise ValueError(\"The list is empty\")\n    return sum(numbers) / len(numbers)\n```",
+      "elapsed_seconds": 3.977,
+      "citation_warning": null
+    },
+    {
+      "name": "en-reason",
+      "lang": "en",
+      "question": "A box contains 3 red balls and 2 blue balls. One ball is drawn uniformly. What is the probability it is blue? Explain in one sentence.",
+      "sources": null,
+      "answer": "The probability of drawing a blue ball is 2/5.",
+      "elapsed_seconds": 1.462,
+      "citation_warning": null
+    },
+    {
+      "name": "en-writing",
+      "lang": "en",
+      "question": "Rewrite this to be clear and polite: Send the notes today. One sentence.",
+      "sources": null,
+      "answer": "Please send the notes by tomorrow.",
+      "elapsed_seconds": 1.666,
+      "citation_warning": null
+    },
+    {
+      "name": "zh-translate",
+      "lang": "zh",
+      "question": "请把这句英文翻译成中文：The meeting starts at ten tomorrow morning. 只输出译文。",
+      "sources": null,
+      "answer": "会议明天早上十点开始。",
+      "elapsed_seconds": 1.406,
+      "citation_warning": null
+    },
+    {
+      "name": "zh-plan",
+      "lang": "zh",
+      "question": "给出三个整理学习笔记的具体步骤，每个步骤一句话。",
+      "sources": null,
+      "answer": "1. 制定一个清晰的学习目标。\n2. 分类整理笔记内容，如知识点、例题等。\n3. 每天固定时间回顾和复习笔记。",
+      "elapsed_seconds": 1.961,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-translate",
+      "lang": "ru",
+      "question": "Переведи на русский: The meeting starts at ten tomorrow morning. Только перевод.",
+      "sources": null,
+      "answer": "The meeting starts at ten tomorrow morning. Только перевод.\n\nРусский перевод:\nЗавтра утром в 10 часов begins the meeting.",
+      "elapsed_seconds": 1.844,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-source",
+      "lang": "ru",
+      "question": "В какое время встречается команда Альфа? Укажи ссылку [1].",
+      "sources": [
+        {
+          "id": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2",
+          "name": "synthetic-schedule.md",
+          "line": 1,
+          "quote": "Команда Альфа встречается по четвергам в 15:00 в аудитории 7."
+        }
+      ],
+      "answer": "В соответствии с предоставленным текстом, команда Альфа встречается по четвергам в 15:00 в аудитории 7. Ссылка на источник: [1].",
+      "elapsed_seconds": 2.418,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-source-unknown",
+      "lang": "ru",
+      "question": "В каком городе находится аудитория 7? Если источник не сообщает город, так и скажи.",
+      "sources": [
+        {
+          "id": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2",
+          "name": "synthetic-schedule.md",
+          "line": 1,
+          "quote": "Команда Альфа встречается по четвергам в 15:00 в аудитории 7."
+        }
+      ],
+      "answer": "Аудитория 7 находится в Москве.",
+      "elapsed_seconds": 3.707,
+      "citation_warning": "missing_citations"
+    },
+    {
+      "name": "ru-followup",
+      "lang": "ru",
+      "question": "Как называется мой учебный проект? Ответь одним словом.",
+      "previous_question": "Мой учебный проект называется «Орион». Ответь только: понял.",
+      "previous_answer": "Понял.",
+      "answer": "Орион.",
+      "elapsed_seconds": 3.375,
+      "contains_supplied_name": true
+    }
+  ],
+  "model_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "network_negative_control": "PermissionError: OS denied outbound connect"
+}

@@ -1,31 +1,61 @@
-# Nemukhina Offline
+# Nemukhina Offline — Offline AI Assistant
 
-**Your texts. Verifiable quotes. On your computer.**
+**For your tasks. On your computer.**
 
-A small local workspace for learning and working with sources. Useful without an AI model: import UTF-8 TXT/Markdown, search exact lines, open the original, copy a citation, and back up your library.
+[Русский](../README.md) · [中文](README.zh.md) · [Test evidence](VALIDATION.md)
+
+Ask questions, develop ideas, write, translate, work through code and plan your next steps. A private local workspace with conversations on the left and useful results on the right. Documents are optional. Russian, English and Chinese interfaces; no account, cloud API or telemetry.
+
+![Running application](images/assistant.jpg)
+
+## What works
+
+- General multi-turn conversations with a local GGUF model.
+- Persistent conversations, renaming and recoverable archive.
+- Copy answers, save Markdown or export a whole conversation.
+- Import TXT/Markdown; exact source quotes, line numbers and SHA-256.
+- Separate source-based mode with visible citation warnings.
+- Local model setup, cancellation, JSON backup and non-destructive restore.
 
 ## Start
 
-Install Python 3.10+, download/unzip the repository, and run from its folder:
+Python 3.10+. No Python dependencies, Node.js or build step.
 
 ```sh
+git clone https://github.com/marinanemukhina-lgtm/nemukhina-offline.git
+cd nemukhina-offline
 python3 server.py
 ```
 
-Windows: `py -3 server.py`. Open **http://127.0.0.1:8765**, switch to **English**, then click **Make sense of fractions**. The synthetic example is added automatically. There is no pip install, frontend build, login or cloud API. Initial software downloads require internet; the local UI uses no remote assets.
+On Windows use `py -3 server.py`. Open **http://127.0.0.1:8765** and choose English. Stop with `Ctrl+C`.
 
-## Optional local model
+Choose **Connect a model**, enter absolute paths to the official `llama-completion` executable and a compatible instruction-tuned `.gguf` model, then connect the files. Initial downloads require internet. The app downloads nothing automatically. Search and backups work without a model. See [model setup](MODELS.md).
 
 ```sh
 python3 server.py --engine /path/to/llama-completion --model /path/to/model.gguf
 ```
 
-Obtain llama.cpp and a compatible licensed GGUF model beforehand. Tested with llama.cpp build 12110; uses the model's chat template. School, university and everyday modes change the instructions, not the model's capabilities. Generation is experimental. A real network-denied RU/EN/ZH smoke test succeeded, but the tiny test model omitted citations in all three answers. The app flags missing/invalid citation numbers; it does not prove claims. [Evidence](VALIDATION.md).
+The app helps generate answers; it does not execute suggested code or act on your computer. Model quality is not guaranteed. Our small-model tests include repeated ideas, changed deadlines, mixed languages and a fabricated source detail. Read the [raw evidence and limits](VALIDATION.md), not just screenshots.
 
-## Boundaries
+## Data and limits
 
-All query terms must appear in one line: this is lexical search, not semantic retrieval or translation. Up to 20 results. Files: 1 MiB each, 200 documents / 50 MiB total. Browser imports: 8 MiB JSON per batch. Backups: up to 320 MiB JSON, checksum-validated merge restores.
+SQLite at `data/library.sqlite3` stores conversations, materials and model paths. JSON v2 backups merge without replacing existing records and accept v1 document backups. Data is plaintext. Keep backups outside the repository.
 
-Data lives in `data/library.sqlite3`, relative to the working directory; select another location with `--db`. It is plaintext. Download backups and keep them outside Git. The server is loopback-only and intended for one local user; do not expose its port or proxy it. No PDF/OCR, voice, bundled encyclopedia or signed installer yet.
+- Documents: UTF-8 TXT/MD, 1 MiB each, 200 files / 50 MiB total.
+- History: 500 conversations, 100 answers per conversation, 20 MiB.
+- Recent complete exchanges fit a 10,000-byte prompt budget; omitted older exchanges are reported.
+- Generation: 4096-token context, 512 new tokens, 180-second timeout, one request at a time. Long answers may stop at the token limit.
+- Quote search is lexical: every query word must occur on the same line. No semantic RAG, PDF, OCR or web search.
+- Citation checks only check reference numbers. Even a cited answer may be unsupported.
 
-[Русский](../README.md) · [中文](README.zh.md) · [Contribute](../CONTRIBUTING.md) · [Security](../SECURITY.md) · [Roadmap](ROADMAP.md)
+All application assets are local. The server binds to loopback and checks Host, Origin and a session token. Do not expose it publicly. The chosen executable is trusted and is not automatically sandboxed. [Security](../SECURITY.md).
+
+## Contribute
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+[CI](https://github.com/marinanemukhina-lgtm/nemukhina-offline/actions/workflows/test.yml) covers Python 3.10/3.14 on Linux/macOS/Windows; real model and browser checks were on macOS ARM64. Bring synthetic reproductions, translations, accessibility improvements or model evaluations. [Contributing](../CONTRIBUTING.md) · [Roadmap](ROADMAP.md).
+
+Code: MIT. Tabler icons: MIT. Lora font: SIL OFL. Bundled notices are in `web/assets`. Models and personal documents are not redistributed. [Comparison and provenance](COMPARISON.md).

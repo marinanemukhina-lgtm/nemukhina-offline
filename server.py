@@ -7,10 +7,14 @@ from pathlib import Path
 import secrets
 import sqlite3
 import threading
+import os
+import mimetypes
+import re
 from urllib.parse import urlsplit
 
 import library
 import offline
+import conversations
 
 ROOT = Path(__file__).resolve().parent
 MAX_REQUEST = 8 * 1024 * 1024
@@ -25,17 +29,22 @@ class LocalServer(ThreadingHTTPServer):
             raise ValueError("Only 127.0.0.1 is supported")
         self.db_path = Path(db_path)
         with offline.connect(self.db_path) as db:
-            db.execute("SELECT 1")
+            conversations.initialize(db)
+            saved = dict(db.execute("SELECT key,value FROM settings"))
         db.close()
         self.token = secrets.token_urlsafe(32)
-        self.engine, self.model = engine, model
+        self.engine, self.model = engine or saved.get("engine"), model or saved.get(
+            "model"
+        )
         self.inference = threading.Lock()
+        self.active_request = None
+        self.cancel_event = threading.Event()
         super().__init__(address, Handler)
         self.origin = "http://127.0.0.1:" + str(self.server_port)
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "NemukhinaOffline/0.2"
+    server_version = "NemukhinaOffline/0.3"
 
     def setup(self):
         super().setup()
@@ -93,6 +102,21 @@ class Handler(BaseHTTPRequestHandler):
             "/style.css": ("style.css", "text/css; charset=utf-8"),
         }
         path = urlsplit(self.path).path
+        if path.startswith("/assets/"):
+            asset = (ROOT / "web" / path.lstrip("/")).resolve()
+            if (
+                (ROOT / "web" / "assets").resolve() in asset.parents
+                and asset.is_file()
+                and asset.suffix in (".svg", ".png", ".ttf")
+            ):
+                self.send(
+                    200,
+                    asset.read_bytes(),
+                    mimetypes.guess_type(str(asset))[0] or "application/octet-stream",
+                )
+            else:
+                self.send(404, {"error": "not_found"})
+            return
         if path not in files:
             self.send(404, {"error": "not_found"})
             return
@@ -146,9 +170,156 @@ class Handler(BaseHTTPRequestHandler):
             ).fetchall()
             return {
                 "documents": [dict(zip(("id", "name", "size"), row)) for row in rows],
-                "model": bool(self.server.engine and self.server.model),
-                "version": "0.2.0",
+                "model": bool(
+                    self.server.engine
+                    and self.server.model
+                    and Path(self.server.engine).is_file()
+                    and Path(self.server.model).is_file()
+                ),
+                "model_name": (
+                    Path(self.server.model).name if self.server.model else None
+                ),
+                "conversations": conversations.listing(db),
+                "version": "0.3.0",
             }
+        if path == "/api/model":
+            if not self.server.inference.acquire(blocking=False):
+                raise ValueError("busy")
+            try:
+                engine, model = data.get("engine"), data.get("model")
+                if (
+                    not isinstance(engine, str)
+                    or not isinstance(model, str)
+                    or len(engine) > 4096
+                    or len(model) > 4096
+                ):
+                    raise ValueError("invalid_request")
+                engine, model = (
+                    Path(engine).expanduser().resolve(),
+                    Path(model).expanduser().resolve(),
+                )
+                if (
+                    engine.name not in ("llama-completion", "llama-completion.exe")
+                    or not engine.is_file()
+                    or not os.access(str(engine), os.X_OK)
+                ):
+                    raise ValueError("engine_path")
+                if not model.is_file() or model.suffix.lower() != ".gguf":
+                    raise ValueError("model_path")
+                with model.open("rb") as stream:
+                    if stream.read(4) != b"GGUF":
+                        raise ValueError("model_path")
+                with db:
+                    db.executemany(
+                        "INSERT OR REPLACE INTO settings VALUES (?,?)",
+                        [("engine", str(engine)), ("model", str(model))],
+                    )
+                self.server.engine, self.server.model = str(engine), str(model)
+                return {"ok": True, "model_name": model.name}
+            finally:
+                self.server.inference.release()
+        if path == "/api/conversation":
+            ident = data.get("id")
+            if not isinstance(ident, str):
+                raise ValueError("invalid_request")
+            return {"conversation": conversations.get(db, ident)}
+        if path == "/api/conversation/update":
+            if not isinstance(data.get("id"), str):
+                raise ValueError("invalid_request")
+            return {
+                "conversation": conversations.update(
+                    db,
+                    data["id"],
+                    data.get("revision"),
+                    data.get("title"),
+                    data.get("archived"),
+                )
+            }
+        if path == "/api/chat/cancel":
+            if (
+                data.get("request_id") == self.server.active_request
+                and self.server.active_request is not None
+            ):
+                self.server.cancel_event.set()
+            return {"ok": True}
+        if path == "/api/chat":
+            question, lang, mode = (
+                data.get("question"),
+                data.get("lang", "ru"),
+                data.get("mode", "chat"),
+            )
+            ident, revision, request_id = (
+                data.get("id"),
+                data.get("revision"),
+                data.get("request_id"),
+            )
+            if (
+                not isinstance(question, str)
+                or not question.strip()
+                or len(question) > 4000
+                or lang not in offline.TEXT
+                or mode not in ("chat", "sources")
+                or not isinstance(request_id, str)
+                or not re.fullmatch(r"[a-f0-9]{32}", request_id)
+                or (ident is not None and not isinstance(ident, str))
+            ):
+                raise ValueError("invalid_request")
+            if not self.server.engine or not self.server.model:
+                raise ValueError("no_model")
+            if not self.server.inference.acquire(blocking=False):
+                raise ValueError("busy")
+            self.server.cancel_event.clear()
+            self.server.active_request = request_id
+            try:
+                current = conversations.get(db, ident) if ident else {"turns": []}
+                if ident:
+                    conversations.check_revision(current, revision)
+                    if current["archived"]:
+                        raise ValueError("conversation_archived")
+                if len(current["turns"]) >= conversations.MAX_TURNS:
+                    raise ValueError("turn_limit")
+                sources = None
+                if mode == "sources":
+                    if not isinstance(data.get("query"), str):
+                        raise ValueError("query")
+                    sources = offline.search(db, data["query"])
+                    if not sources:
+                        raise ValueError("no_sources")
+                prompt, omitted = conversations.prompt(
+                    question.strip(), current["turns"], lang, sources
+                )
+                try:
+                    answer = offline.generate(
+                        self.server.engine,
+                        self.server.model,
+                        prompt,
+                        cancel_event=self.server.cancel_event,
+                    )
+                except ValueError as error:
+                    if str(error) == "cancelled":
+                        raise
+                    raise ValueError("engine") from None
+                if self.server.cancel_event.is_set():
+                    raise ValueError("cancelled")
+                if len(answer) > 32000:
+                    raise ValueError("answer_limit")
+                turn = {
+                    "question": question.strip(),
+                    "answer": answer,
+                    "lang": lang,
+                    "mode": mode,
+                    "sources": sources or [],
+                    "warning": (
+                        offline.citation_warning(answer, len(sources))
+                        if sources
+                        else None
+                    ),
+                    "context_omitted": omitted,
+                }
+                return {"conversation": conversations.append(db, ident, revision, turn)}
+            finally:
+                self.server.active_request = None
+                self.server.inference.release()
         if path == "/api/demo":
             return {
                 "added": offline.import_files(
@@ -158,9 +329,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/import":
             return {"added": library.add_documents(db, data.get("documents"))}
         if path == "/api/backup":
-            return library.snapshot(db)
+            return conversations.snapshot(db)
         if path == "/api/restore":
-            return {"added": library.restore(db, data.get("backup"))}
+            return conversations.restore(db, data.get("backup"))
         if path in ("/api/document", "/api/delete"):
             ident = data.get("id")
             if not isinstance(ident, str) or len(ident) != 64:
@@ -210,6 +381,18 @@ class Handler(BaseHTTPRequestHandler):
 
 
 ERROR_CODES = {
+    "conversation_missing",
+    "conversation_changed",
+    "conversation_archived",
+    "history_limit",
+    "turn_limit",
+    "context_limit",
+    "engine_path",
+    "model_path",
+    "no_sources",
+    "cancelled",
+    "answer_limit",
+    "engine",
     "document_format",
     "file_name",
     "file_encoding",

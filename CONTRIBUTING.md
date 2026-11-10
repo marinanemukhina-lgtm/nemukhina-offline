@@ -1,6 +1,6 @@
 # Contributing / Участие
 
-Help make local sources useful to more people. Good first contributions: improve RU/EN/ZH translations, reproduce a bug with synthetic text, test keyboard navigation, document a model's actual limitations.
+Help make offline AI useful for everyday tasks. Good first contributions: improve RU/EN/ZH translations, reproduce a bug with synthetic text, test keyboard navigation, simplify first-time setup, or document a model's actual limitations. Sources are an optional workflow; preserve the general-purpose conversation experience.
 
 ## Development
 
@@ -13,7 +13,7 @@ python3 server.py --db /tmp/nemukhina-dev.sqlite3
 
 Use Python 3.10+ for ongoing development (3.9 is a legacy compatibility target). On Windows use a local temporary path and `py -3` where appropriate. CI covers Python 3.10/3.14 on Linux/macOS/Windows. POSIX-only process fixture is explicitly skipped on Windows.
 
-Keep changes focused. Explain the user-visible problem and validation. Tests should cover behavior and failure cases, not mirror implementation. Preserve UTF-8, exact source quotes, atomic library writes, loopback binding and the no-cloud default. Never add telemetry, remote assets, a model download or a new dependency without discussing its need.
+Keep changes focused. Explain the user-visible problem and validation. Tests should cover behavior and failure cases, not mirror implementation. Preserve UTF-8, exact source quotes, atomic workspace writes, recoverable archives, bounded history, loopback binding and the no-cloud default. Never add telemetry, remote assets, a model download or a new dependency without discussing its need. UI work should follow [the design rationale](docs/DESIGN.md), then be checked in a browser.
 
 All text from documents and models is untrusted. Render it as text, not HTML. Do not enable shell execution, URL tools or filesystem tools for models.
 

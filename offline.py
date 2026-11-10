@@ -10,6 +10,7 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
+import time
 
 MAX_FILE = 1024 * 1024
 MAX_TOTAL = 50 * MAX_FILE
@@ -125,7 +126,7 @@ def prompt_for(question, sources, language, mode):
     )
 
 
-def generate(engine, model, prompt):
+def generate(engine, model, prompt, cancel_event=None):
     engine, model = (
         Path(engine).expanduser().resolve(),
         Path(model).expanduser().resolve(),
@@ -145,7 +146,7 @@ def generate(engine, model, prompt):
     with tempfile.TemporaryDirectory(prefix="nemukhina-prompt-") as directory:
         file = Path(directory) / "prompt.txt"
         file.write_text(prompt, encoding="utf-8")
-        result = subprocess.run(
+        process = subprocess.Popen(
             [
                 str(engine),
                 "-m",
@@ -162,24 +163,43 @@ def generate(engine, model, prompt):
                 "42",
                 "--temp",
                 "0",
+                "--repeat-penalty",
+                "1.05",
                 "--no-display-prompt",
                 "--no-escape",
             ],
             stdin=subprocess.DEVNULL,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=180,
             env=environment,
         )
-    if result.returncode:
+        deadline = time.monotonic() + 180
+        try:
+            while True:
+                if cancel_event is not None and cancel_event.is_set():
+                    raise ValueError("cancelled")
+                if time.monotonic() >= deadline:
+                    raise subprocess.TimeoutExpired(str(engine), 180)
+                try:
+                    stdout, _ = process.communicate(timeout=0.2)
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
+        finally:
+            if process.poll() is None:
+                process.kill()
+            process.communicate()
+    if process.returncode:
         raise ValueError(
             "Local engine failed; check model compatibility and llama.cpp version"
         )
-    if not result.stdout.strip():
+    answer = stdout.strip().removesuffix("[end of text]").rstrip()
+    if not answer:
         raise ValueError("Local engine returned no answer")
-    return result.stdout.strip().removesuffix("[end of text]").rstrip()
+    return answer
 
 
 def citation_warning(answer, count):

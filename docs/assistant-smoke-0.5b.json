@@ -1,0 +1,133 @@
+{
+  "kind": "task samples, not an accuracy benchmark",
+  "platform": "macOS-14.2-arm64-arm-64bit",
+  "python": "3.9.6",
+  "model_file": "qwen.gguf",
+  "cases": [
+    {
+      "name": "ru-plan",
+      "lang": "ru",
+      "question": "Предложи три конкретных шага, чтобы начать изучать английский самостоятельно по 20 минут в день. Ответь кратко.",
+      "sources": null,
+      "answer": "1. Сначала найдите онлайн-курсы английского языка на платформе Coursera или Udemy.\n2. Затем выберите курс по вашему интересам (например, математика, физика, история).\n3. После выбора курса, найдите онлайн-курсы английского языка на платформе Duolingo или Babbel.\n4. После выбора курса, найдите онлайн-курсы английского языка на платформе Rosetta Stone.\n5. После выбора курса, найдите онлайн-курсы английского языка на платформе Memrise.\n6. После выбора курса, найдите онлайн-курсы английского языка на платформе Babbel.\n7. После выбора курса, найдите онлайн-курсы английского языка на платформе Rosetta Stone.\n8. После выбора курса, найдите онлайн-курсы английского языка на платформе Memrise.\n9. После выбора курса, найдите онлайн-курсы английского языка на платформе Rosetta Stone.\n10. После выбора курса, найдите онлайн-курсы английского языка на платформе Memrise.\n11. После выбора курса, найдите онлайн-курсы английского языка на платформе Rosetta Stone.\n12. После выбора курса, найдите онлайн-курсы английского языка на платформе Memrise.\n13. После выбора курса, найдите онлайн-курсы английского языка на платформе Rosetta Stone.\n14. После выбора курса, найдите онлайн-курсы английского языка на платформе Memrise.\n15. После выбора курса, найдите онлайн-курсы английского языка на платформе Rosetta Stone.\n16. После выбора курса, найдите онлайн-курсы английского языка на платформе Memrise.\n17. После выбора курса, найдите онлайн-курсы английского языка на платформе Rosetta Stone.\n18. После выбора курса, найдите онлайн-курсы английского языка на платформе Memrise.\n19. После выбора курса, найдите онлайн-курсы английского языка",
+      "elapsed_seconds": 8.11,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-writing",
+      "lang": "ru",
+      "question": "Перепиши вежливо, сохрани смысл: «Пришли мне черновик завтра, я проверю». Одно предложение.",
+      "sources": null,
+      "answer": "Вежливо, сохрани смысл: «Пришли мне черновик завтра, я проверю».",
+      "elapsed_seconds": 1.383,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-ideas",
+      "lang": "ru",
+      "question": "Придумай три разные идеи для короткого фантастического рассказа. По одному предложению на идею.",
+      "sources": null,
+      "answer": "Конечно, вот три разные идеи для короткого фантастического рассказа:\n\n1. \"Вечерний мрак\"\n\n2. \"Солнце и змей\"\n\n3. \"Гора и ледяной дождь\"",
+      "elapsed_seconds": 2.08,
+      "citation_warning": null
+    },
+    {
+      "name": "en-code",
+      "lang": "en",
+      "question": "Write a Python function mean(numbers) that returns the arithmetic mean and raises ValueError for an empty list. Return only code.",
+      "sources": null,
+      "answer": "To write a Python function `mean(numbers)` that calculates the arithmetic mean of a given list of numbers, we need to ensure it handles both empty lists and non-empty lists correctly. Here's the code:\n\n```python\ndef mean(numbers):\n    # Check if the list is empty\n    if not numbers:\n        raise ValueError(\"The input list cannot be empty.\")\n    \n    # Calculate the arithmetic mean\n    mean_value = sum(numbers) / len(numbers)\n    \n    return mean_value\n\n# Test the function with a sample list\nnumbers = [1, 2, 3, 4, 5]\nresult = mean(numbers)\nprint(result)  # Output: 3.0\n```\n\n### Explanation:\n1. **Check for Empty List**: The function first checks if the input list `numbers` is empty using the condition `not numbers`. If it is empty, it raises a `ValueError` with an appropriate message.\n\n2. **Calculate Mean**: If the list is not empty, the function calculates the arithmetic mean by summing all elements in the list and dividing by the length of the list. This is done using the `sum()` function to get the total sum and the `len()` function to get the number of elements.\n\n3. **Return Result**: Finally, the function returns the calculated mean value.\n\n### Test with Sample List:\nThe sample list `[1, 2, 3, 4, 5]` is passed to the `mean()` function, and it correctly calculates the arithmetic mean (3.0) and raises a `ValueError` for an empty list.\n\nThis function ensures that the input is valid and handles both empty and non-empty lists correctly.",
+      "elapsed_seconds": 5.278,
+      "citation_warning": null
+    },
+    {
+      "name": "en-reason",
+      "lang": "en",
+      "question": "A box contains 3 red balls and 2 blue balls. One ball is drawn uniformly. What is the probability it is blue? Explain in one sentence.",
+      "sources": null,
+      "answer": "The probability of drawing a blue ball from the box is \\(\\frac{2}{5}\\).",
+      "elapsed_seconds": 1.573,
+      "citation_warning": null
+    },
+    {
+      "name": "en-writing",
+      "lang": "en",
+      "question": "Rewrite this to be clear and polite: Send the notes today. One sentence.",
+      "sources": null,
+      "answer": "Send the notes today. One sentence.",
+      "elapsed_seconds": 0.967,
+      "citation_warning": null
+    },
+    {
+      "name": "zh-translate",
+      "lang": "zh",
+      "question": "请把这句英文翻译成中文：The meeting starts at ten tomorrow morning. 只输出译文。",
+      "sources": null,
+      "answer": "会议从今天早上十点开始。",
+      "elapsed_seconds": 1.468,
+      "citation_warning": null
+    },
+    {
+      "name": "zh-plan",
+      "lang": "zh",
+      "question": "给出三个整理学习笔记的具体步骤，每个步骤一句话。",
+      "sources": null,
+      "answer": "1. 选择一个合适的笔记本或电子设备。\n2. 按需添加笔记、文字和图片等信息。\n3. 使用记事本、Word文档或其他电子工具进行整理和分类。",
+      "elapsed_seconds": 1.767,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-translate",
+      "lang": "ru",
+      "question": "Переведи на русский: The meeting starts at ten tomorrow morning. Только перевод.",
+      "sources": null,
+      "answer": "Перевод на русский: Съезд начинает восьмого дня недели утром.",
+      "elapsed_seconds": 1.463,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-source",
+      "lang": "ru",
+      "question": "В какое время встречается команда Альфа? Укажи ссылку [1].",
+      "sources": [
+        {
+          "id": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2",
+          "name": "synthetic-schedule.md",
+          "line": 1,
+          "quote": "Команда Альфа встречается по четвергам в 15:00 в аудитории 7."
+        }
+      ],
+      "answer": "В какое время встречается команда Альфа? Укажи ссылку [1].",
+      "elapsed_seconds": 1.363,
+      "citation_warning": null
+    },
+    {
+      "name": "ru-source-unknown",
+      "lang": "ru",
+      "question": "В каком городе находится аудитория 7? Если источник не сообщает город, так и скажи.",
+      "sources": [
+        {
+          "id": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2",
+          "name": "synthetic-schedule.md",
+          "line": 1,
+          "quote": "Команда Альфа встречается по четвергам в 15:00 в аудитории 7."
+        }
+      ],
+      "answer": "В городе Москва находится аудитория 7.",
+      "elapsed_seconds": 1.193,
+      "citation_warning": "missing_citations"
+    },
+    {
+      "name": "ru-followup",
+      "lang": "ru",
+      "question": "Как называется мой учебный проект? Ответь одним словом.",
+      "previous_question": "Мой учебный проект называется «Орион». Ответь только: понял.",
+      "previous_answer": "Я понял.",
+      "answer": "my учебный проект",
+      "elapsed_seconds": 1.542,
+      "contains_supplied_name": false
+    }
+  ],
+  "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+  "network_negative_control": "PermissionError: OS denied outbound connect"
+}

@@ -1,53 +1,85 @@
-# Validation / Проверки — 10 ноября 2026
+# Проверки v0.3.0 — 10 ноября 2026
 
-## Local application
+## Приложение
 
-macOS ARM64 / Python 3.9.6. Test command:
+macOS ARM64, Python 3.9.6 (локальная проверка совместимости). Поддерживаемая линия для установки и CI — Python 3.10+.
+
+**33 автоматических теста прошли локально.** Они проверяют импорт, хеши, точный поиск, ограничения, атомарность, параллельные записи, резервные копии v1/v2, сохранение разговоров после повторного открытия базы, конфликт версий, архив/восстановление, отсутствие частичного сохранения при ошибке модели, отмену, занятость движка, Host/Origin/токен и недоступность произвольных файлов.
 
 ```sh
 python3 -m unittest discover -s tests -v
 ```
 
-Coverage includes multilingual exact search, hashes, duplicates, invalid UTF-8, atomic import and limits, concurrent imports, backup round-trip and merge, tampered backups, path validation, API Host/Origin/token checks, inaccessible arbitrary files, API content types/limits, no-model/no-evidence paths, citation syntax, and no-outbound-connect control for source search.
+CI: Python 3.10/3.14 × Ubuntu/macOS/Windows. Актуальный результат конкретного коммита смотрите в [Actions](https://github.com/marinanemukhina-lgtm/nemukhina-offline/actions/workflows/test.yml). Настроенная матрица сама по себе не означает успешное прохождение. POSIX-фикстура процесса пропускается на Windows.
 
-Browser acceptance: actual app opened in the in-app browser; one-click example, source inspection with line numbers, RU/EN/ZH UI and search exercised. A 390px viewport had no horizontal document overflow (clientWidth = scrollWidth = 390). The in-app browser's narrow screenshot scaling was unusual; this is not full physical-mobile acceptance. Desktop screenshot in `images/workspace.jpg` is the running app, not a mockup. Upload/download/restore paths have HTTP integration tests; manual cross-browser file-picker acceptance remains outstanding.
+## Браузер
 
-CI matrix: Python 3.10 / 3.14 on Ubuntu, macOS, Windows. See the live [Actions results](https://github.com/marinanemukhina-lgtm/nemukhina-offline/actions/workflows/test.yml), rather than assuming a configured job passed. One POSIX executable fixture is explicitly skipped on Windows.
+Приложение открывалось и проверялось в реальном in-app browser:
 
-## Actual local model, with OS network denied
+- Первый запуск без модели; понятная настройка, введённый вопрос сохраняется в поле.
+- Подключение существующих файлов модели, реальный общий ответ без документов, уточнение в том же диалоге.
+- Возврат к сохранённому разговору после перезагрузки страницы.
+- Копирование результата и реальное скачивание Markdown; содержимое скачанного файла проверено.
+- Загрузка синтетических материалов, поиск цитаты без модели, открытие исходного текста.
+- RU/EN/中文, настольный экран 1440×1024, узкие экраны 390 и 320 px.
+- После исправления переполнения: scrollWidth = innerWidth = 320. Кнопки с иконками имеют доступные подписи. Подсказка переносит фокус в поле вопроса.
+- В финальном проверенном экране нет сообщений console error/warn и отсутствующих изображений.
 
-- Engine: official llama.cpp **b12110**, version `0.9.0-dev`, commit `cd959bae9`, macOS ARM64.
-- Engine archive SHA-256: `4f5b8de12e0b9516658ca6a5764c6ffb3d7c659c3dd538556b1413c7b4050662`, matched GitHub's release digest.
-- Model: [Qwen/Qwen2.5-0.5B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF), revision `9217f5db79a29953eb74d5343926648285ec7e67`, `qwen2.5-0.5b-instruct-q4_k_m.gguf`.
-- Model SHA-256: `74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db`. Model card labels Apache-2.0; no weights are redistributed here.
-- All source texts and questions in the test are synthetic. Raw output: [model-smoke.json](model-smoke.json).
+[Настольный экран](images/assistant.jpg) и [узкий экран](images/mobile.jpg) — снимки работающего приложения. [Дизайн-проверка](../design-qa.md). Физические телефоны, реальные скринридеры, все браузеры и ручной импорт/восстановление через файловые диалоги на всех ОС не проверены. Транзакционные пути импорта и восстановления покрыты HTTP-тестами.
 
-| Language | Answer | Wall time | Requested citation present |
-|---|---|---|---|
-| Russian | Дробь 1/2 равна 0,5. | 0.614 s | No |
-| English | 1/2 equals 0.5. | 0.429 s | No |
-| Chinese | 分数 1/2 等于 0.5。 | 0.470 s | No |
+## Реальные модели при запрете сети ОС
 
-These are three trivial arithmetic smoke cases, **not an accuracy, safety, educational-quality or performance benchmark**. Warm-cache effects apply; peak memory was not measured. No claim of reliable citation following is made. The UI/CLI now warn when the model omits citation numbers or cites nonexistent numbers. Even syntactically valid citations do not prove support.
+Движок: официальный llama.cpp **b12110**, `0.9.0-dev`, commit `cd959bae9`, macOS ARM64. SHA-256 архива: `4f5b8de12e0b9516658ca6a5764c6ffb3d7c659c3dd538556b1413c7b4050662` (сверен с digest выпуска).
 
-The first run with a plain completion prompt repeated instructions and generated irrelevant text. The adapter was corrected to use the model's built-in chat template (`--jinja --single-turn`), temperature 0 and seed 42. The table records the corrected adapter.
+Оба прогона выполнены под `sandbox-exec` с `(deny network*)`. Каждый прогон содержит отрицательный контроль исходящего соединения: ОС вернула **PermissionError**. Это подтверждение сетевого запрета для этих прогонов; приложение не создаёт такую песочницу автоматически для любого пользовательского движка.
 
-### Reproduce on macOS
+| Модель Qwen2.5-Instruct Q4_K_M | Ревизия официального GGUF-репозитория | Ответы | Время одного ответа |
+| --- | --- | --- | --- |
+| 0.5B | `9217f5db79a29953eb74d5343926648285ec7e67` | [12 задач, исходные ответы](assistant-smoke-0.5b.json) | 0.967–8.110 с |
+| 1.5B | `91cad51170dc346986eccefdc2dd33a9da36ead9` | [12 задач, исходные ответы](assistant-smoke-1.5b.json) | 1.406–7.786 с |
 
-After downloading the engine and model from their official sources:
+SHA-256 моделей:
+
+- 0.5B: `74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db`.
+- 1.5B: `6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e`.
+
+Настройки: chat template модели, seed 42, температура 0, repeat penalty 1.05, 4096 токенов контекста, максимум 512 новых токенов. Тексты и диалоги полностью синтетические. Время включает запуск процесса; кеш ОС мог быть прогрет. Пиковая RAM не измерялась. Это небольшой набор задач для выявления проблем, **не оценка общей точности и не сравнительный рейтинг моделей**.
+
+## Что получилось и что не получилось
+
+Ручное чтение полных ответов показывает:
+
+| Задача | 0.5B | 1.5B |
+| --- | --- | --- |
+| Простой расчёт вероятности | Верно: 2/5 | Верно: 2/5 |
+| Код среднего с обработкой пустого списка | Содержит нужную функцию, но нарушает просьбу «только код» | Содержит нужную функцию; код модели в приложении не исполнялся |
+| Перевод EN→ZH | Меняет «завтра» на «сегодня» | Сохраняет время и день |
+| Перевод EN→RU | Неверный смысл | Смешивает русский и английский |
+| Вежливое редактирование письма EN | Не выполняет редактирование | Меняет «сегодня» на «завтра» |
+| Три идеи для рассказа | Только названия вместо идей | Повторяет одну идею, нарушает краткость |
+| План обучения без сети | Длинные повторы и онлайн-сервисы | Три шага, но всё равно предлагает онлайн-ресурсы |
+| Время встречи из источника | Повторяет вопрос | Верно извлекает время и ставит [1] |
+| Город, которого в источнике нет | Выдумывает Москву | Также выдумывает Москву |
+| Имя проекта из предыдущего хода | Не восстанавливает имя | Восстанавливает «Орион» |
+
+**Вывод:** запуск без сети, сохранение диалога и передача контекста подтверждены. Надёжное следование инструкциям и источникам не подтверждено. Маленькие модели нельзя рекомендовать как универсально точного помощника. Отсутствующий факт может быть выдуман даже после явной инструкции не угадывать. Проверка номеров цитат не является проверкой смысла.
+
+## Воспроизведение
+
+После отдельной подготовки официального движка и модели:
 
 ```sh
-sandbox-exec -p '(version 1) (allow default) (deny network*)' \
-  python3 scripts/evaluate_model.py \
+sandbox-exec -p '(version 1)(allow default)(deny network*)' \
+  python3 scripts/evaluate_assistant.py \
   --engine /path/to/llama-completion \
-  --model /path/to/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-  --output /tmp/model-smoke.json
+  --model /path/to/model.gguf \
+  --output /tmp/assistant-smoke.json
 ```
 
-A separate negative control attempted a socket connection to a running local server within the same sandbox profile; it failed with `PermissionError: Operation not permitted`. This confirms network denial was active. This verification applies to this macOS engine/model run, not every possible user-selected executable.
+На других ОС нужен эквивалентный механизм сетевой изоляции. Обычный запуск скрипта не доказывает отсутствие сетевых обращений. Поле `network_negative_control` показывает, был ли запрет подтверждён.
 
-The earlier 0.1 session could not nest `sandbox-exec` inside its execution sandbox. In this iteration, running the test through the authorized execution path allowed the inner network-denial profile. No system security setting was disabled.
+Исторический smoke v0.2: [model-smoke.json](model-smoke.json), три простых ответа о дробях. Он использовал прежние настройки и не заменяет проверки общего помощника.
 
-## Still unverified
+## Дальнейшие проверки
 
-Broad model grounding, prompt-injection resilience, large libraries, accessibility with real assistive devices, full browser file flows on Windows/Linux, supported-device RAM and latency, and signed installers. See [release gates](ROADMAP.md).
+Систематическая оценка более способных моделей, устойчивость к инструкциям в документах, длинные истории и материалы, фактическая RAM/скорость на разных устройствах, установщики, доступность со скринридером и все файловые сценарии в разных браузерах. См. [ROADMAP](ROADMAP.md).

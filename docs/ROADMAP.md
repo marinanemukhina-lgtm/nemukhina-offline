@@ -1,28 +1,23 @@
-# From useful tool to a project people recommend
+# Развитие общего автономного помощника
 
-Stars reflect people finding value. They are not a delivery guarantee, an acceptance test or a reason to hide limitations.
+Цель — приложение, к которому возвращаются для реальных задач. 1000 звёзд — ориентир интереса, не гарантия и не замена качеству.
 
-## Shipped in 0.2
+## Выпущено в 0.3
 
-- A working first-use experience without downloading a model.
-- Local browser workspace, exact quotes, full-source inspection and backups.
-- RU/EN/ZH interface and synthetic examples.
-- Explicit security boundaries and measured model smoke results.
+Свободный диалог без обязательных документов, локальная история, архив, Markdown-результаты, резервные копии с совместимостью v1, настройка модели, остановка генерации, общий интерфейс RU/EN/中文. Новая композиция: разговор и результат рядом. Проведены разнообразные испытания двух небольших моделей с запретом сети; ошибки опубликованы.
 
-## Next release gates
+## Ближайшие критерии качества
 
-1. Test instruction-following and grounded answers on a broader synthetic set (not just three arithmetic questions), including absent evidence and prompt injection. Record failure examples.
-2. Select an adequately capable multilingual model with verified license, memory requirements and reproducible offline installation. No default recommendation until it passes.
-3. Run keyboard and screen-reader acceptance, browser upload/download/restore on Windows/Linux/macOS, and long-document performance tests.
-4. Evaluate PDF text extraction as an optional dependency with clear limits; OCR and ZIM are separate projects. Preserve provenance and licenses.
-5. Package signed desktop installers only after the underlying flows are reliable.
+1. Выбрать более способные многоязычные модели после измерений: сохранение смысла, работа с отсутствующими фактами, разные идеи, корректный код и полезность планов. Отдельно измерять RAM, время, установку и лицензии.
+2. Упростить первый запуск без обещаний, которые не проходят на чистой машине. Подписанные установщики и автоматическая подготовка модели требуют отдельного проекта и проверки.
+3. Проверить реальные скринридеры, физические мобильные устройства, файловые диалоги и восстановление на Windows/Linux/macOS.
+4. Улучшить контекст длинных задач, потоковую выдачу и постоянный локальный движок. Сейчас каждый ответ запускает отдельный процесс.
+5. Добавлять новые типы материалов и смысловой поиск по реальной потребности, сохраняя происхождение и проверяемость источников. PDF, OCR и внешние базы знаний пока не реализованы.
 
-## Organic launch plan (not executed)
+## Как расти
 
-- Show a 45-second demo: add a synthetic text → search → open exact source → backup.
-- Explain the specific promise: a small private source workspace, useful even without an LLM.
-- Invite a small group of teachers/students to try a concrete task and report blockers without sharing private data.
-- Publish measured improvements and before/after examples in releases.
-- Share only in relevant communities under their rules. Do not buy stars, exchange stars, mass-message people or promise capabilities not shipped.
+Показывать завершённые задачи: вопрос → уточнение → результат → возвращение после перезапуска. Демонстрации должны содержать реальные ответы и ошибки выбранной модели. Русский основной; английская и китайская документация дают возможность участвовать другим людям.
 
-Before broader promotion, use observed completion of the first task, successful restore, and model grounding failures as quality signals. A numeric star target is not a substitute for them.
+Собирать обратную связь по понятности установки, первой полезной задаче и повторному использованию. Публиковать измеримые исправления в релизах, делать небольшие понятные задачи для участников. Общие сценарии не сводятся к одной профессии или учебной аудитории.
+
+План публикаций в сообществах пока не исполнялся. Не покупать звёзды, не обменивать их, не рассылать массовые сообщения и не заявлять превосходство без сравнимых испытаний.
