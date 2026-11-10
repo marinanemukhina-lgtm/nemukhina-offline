@@ -212,4 +212,4 @@ class ChatAPIOnlyTests(unittest.TestCase):
             "/assets/icons/LICENSE",
         ):
             self.assertEqual(self.request(path, method="GET")[0], 404)
-        self.assertEqual(self.request("/assets/brand.png", method="GET")[0], 200)
+        self.assertEqual(self.request("/assets/possibility.png", method="GET")[0], 200)
