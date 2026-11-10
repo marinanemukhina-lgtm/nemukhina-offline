@@ -1,0 +1,56 @@
+{
+  "kind": "smoke, not accuracy benchmark",
+  "platform": "macOS-14.2-arm64-arm-64bit",
+  "python": "3.9.6",
+  "cases": [
+    {
+      "language": "ru",
+      "question": "Чему равна 1/2? Ответь одним предложением со ссылкой [1].",
+      "sources": [
+        {
+          "id": "34b8020055a3d8886e939f8259bb66915bfef96678cf389af1dd80a3d41b005e",
+          "name": "lesson-ru.md",
+          "line": 2,
+          "quote": "Дробь 1/2 равна 0,5. Две половины составляют целое."
+        }
+      ],
+      "answer": "Дробь 1/2 равна 0,5.",
+      "elapsed_seconds": 0.614,
+      "contains_expected_number": true,
+      "contains_reference_1": false
+    },
+    {
+      "language": "en",
+      "question": "What does 1/2 equal? Answer in one sentence with citation [1].",
+      "sources": [
+        {
+          "id": "a72daad5e0f918721a0c8273d94dda15bf096f64604dcc28bb38609b4493c355",
+          "name": "lesson-en.md",
+          "line": 2,
+          "quote": "A fraction of 1/2 equals 0.5. Two halves make one whole."
+        }
+      ],
+      "answer": "1/2 equals 0.5.",
+      "elapsed_seconds": 0.429,
+      "contains_expected_number": true,
+      "contains_reference_1": false
+    },
+    {
+      "language": "zh",
+      "question": "1/2 等于多少？请用一句话回答，并引用 [1]。",
+      "sources": [
+        {
+          "id": "f6251cfa3f4cb719d05b07b7a9c6c0a18b24332dd1123ff1a2a3417ee3b0e9f0",
+          "name": "lesson-zh.md",
+          "line": 2,
+          "quote": "分数 1/2 等于 0.5。两个一半组成一个整体。"
+        }
+      ],
+      "answer": "分数 1/2 等于 0.5。",
+      "elapsed_seconds": 0.47,
+      "contains_expected_number": true,
+      "contains_reference_1": false
+    }
+  ],
+  "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db"
+}

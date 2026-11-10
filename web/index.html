@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="local-token" content="__LOCAL_TOKEN__">
+<title>Nemukhina Offline</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+<a href="#main" class="skip" data-t="skip">К содержимому</a>
+<div class="shell">
+<aside>
+<a class="brand" href="/" aria-label="Nemukhina Offline"><span class="mark">n<span>✳</span></span><span>nemukhina<span class="brand-sub">OFFLINE</span></span></a>
+<div class="aside-head"><span class="eyebrow" data-t="library">ВАША БИБЛИОТЕКА</span><span id="count" class="count">0</span></div>
+<button class="add" id="import" data-t="add">＋ Добавить тексты</button>
+<input id="files" type="file" accept=".txt,.md" multiple hidden>
+<p class="muted small" data-t="fileHint">TXT / Markdown · до 1 МиБ на файл</p>
+<ul id="documents" class="documents"></ul>
+<p id="emptyLibrary" class="empty-library" data-t="emptyLibrary">Здесь появятся ваши источники. Они останутся на этом компьютере.</p>
+<div class="library-actions"><button id="backup" data-t="backup">Скачать копию</button><button id="restore" data-t="restore">Восстановить</button><input id="restoreFile" type="file" accept=".json" hidden></div>
+<div class="aside-footer"><span class="dot"></span><span data-t="local">Работает на вашем компьютере</span><small data-t="privacy">Без аккаунта. Без облака. Без телеметрии.</small></div>
+</aside>
+<div class="workspace">
+<header><span class="breadcrumb" data-t="workspace">Рабочее пространство / Источники</span><label class="language"><span class="sr-only" data-t="language">Язык</span><select id="lang"><option value="ru">Русский</option><option value="en">English</option><option value="zh">中文</option></select></label></header>
+<main id="main">
+<div class="intro"><div class="eyebrow"><span class="short-line"></span><span data-t="eyebrow">ЗНАНИЯ ПОД РУКОЙ</span></div><h1 data-t="title">Ваши тексты.<br>Ясные ответы.</h1><p class="lead" data-t="lead">Найдите нужную мысль в своих материалах — с точной цитатой, которую можно проверить.</p></div>
+<section class="search-card" aria-labelledby="searchLabel">
+<form id="searchForm"><label id="searchLabel" for="query" data-t="searchLabel">Что ищем в источниках?</label><div class="query-row"><input id="query" autocomplete="off" maxlength="1000" required placeholder="Например: дробь" data-placeholder="placeholder"><button type="submit" class="primary" data-t="search">Найти цитаты ↗</button></div><p class="small muted" data-t="searchHint">Ищем все введённые слова в одной строке. Попробуйте короткую фразу.</p></form>
+<div class="model-row"><span id="modelStatus" class="pill" data-t="sourceMode">Режим источников</span><span id="modelHint" class="small muted" data-t="noModel">Поиск работает без нейросети.</span><button id="modelHelp" class="text-button" data-t="connect">Как подключить модель</button></div>
+<details id="askPanel" hidden><summary data-t="askTitle">Объяснить с локальной моделью</summary><div class="ask-fields"><label for="question" data-t="question">Ваш вопрос к найденным источникам</label><textarea id="question" rows="2" maxlength="2000"></textarea><label for="mode" data-t="mode">Режим</label><select id="mode"><option value="general" data-t="general">Повседневные задачи</option><option value="school" data-t="school">Школьнику</option><option value="university" data-t="university">Студенту</option></select><button id="ask" class="primary" data-t="ask">Объяснить</button></div></details>
+</section>
+<div id="status" role="status" aria-live="polite"></div>
+<section id="welcome"><div class="section-heading"><h2 data-t="start">Начните с небольшой идеи</h2><span class="small muted" data-t="samples">Встроенные учебные примеры</span></div><div class="sample-grid"><button class="sample" data-sample="fraction"><span class="sample-icon">½</span><strong data-t="sample1">Понять дроби</strong><span data-t="sample1sub">Одна мысль. Точный источник.</span><span class="arrow">↗</span></button><button class="sample" data-sample="project"><span class="sample-icon">⌘</span><strong data-t="sample2">Спланировать исследование</strong><span data-t="sample2sub">От вопроса к проверке вывода.</span><span class="arrow">↗</span></button><button class="sample" data-sample="all"><span class="sample-icon">文</span><strong data-t="sample3">Три языка, одна библиотека</strong><span data-t="sample3sub">Русский, English, 中文.</span><span class="arrow">↗</span></button></div></section>
+<section id="resultsArea" hidden><div class="section-heading"><h2 data-t="results">Найдено в ваших источниках</h2><span id="resultCount" class="small muted"></span></div><p id="noResults" hidden data-t="noResults">Совпадений нет. Уберите лишние слова или добавьте источник. Мы не будем придумывать ответ.</p><div id="results"></div><article id="answerCard" hidden><span class="eyebrow" data-t="draft">ЧЕРНОВИК МОДЕЛИ · ПРОВЕРЬТЕ ССЫЛКИ</span><p id="answer"></p></article></section>
+<footer class="main-footer"><span data-t="foot">Сначала источник. Затем вывод.</span><span>v0.2.0 · MIT</span></footer>
+</main></div></div>
+<dialog id="documentDialog"><div class="dialog-head"><h2 id="documentName"></h2><button id="closeDocument" aria-label="Close">×</button></div><p id="documentHash" class="hash"></p><pre id="documentText"></pre></dialog>
+<dialog id="helpDialog"><div class="dialog-head"><h2 data-t="helpTitle">Локальная модель</h2><button id="closeHelp" aria-label="Close">×</button></div><p data-t="helpBody">Заранее скачайте llama.cpp и совместимую GGUF-модель. Перезапустите приложение с путями к ним:</p><pre>python3 server.py --engine /path/to/llama-completion --model /path/to/model.gguf</pre><p data-t="helpNote">Ничего не скачивается автоматически. Генерация экспериментальная: качество и цитаты нужно проверять. Поиск и библиотека уже доступны без модели.</p></dialog>
+</body></html>
