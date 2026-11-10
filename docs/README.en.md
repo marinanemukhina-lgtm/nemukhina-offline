@@ -29,7 +29,7 @@ python3 server.py
 
 On Windows use `py -3 server.py`. Open **http://127.0.0.1:8765** and choose English. Stop with `Ctrl+C`.
 
-Choose **Connect a model**, enter absolute paths to the official `llama-completion` executable and a compatible instruction-tuned `.gguf` model, then connect the files. Initial downloads require internet. The app downloads nothing automatically. Search and backups work without a model. See [model setup](MODELS.md).
+Choose **Connect a model**, enter absolute paths to the official `llama-completion` executable and a compatible instruction-tuned `.gguf` model, then click **Connect and check**. Alternatively, place the extracted engine in `runtime` and the model in `models` beside `server.py`, then choose **Find prepared files**. The startup check shows the model name, actual answer and elapsed time; it does not assess overall answer quality. Initial downloads require internet. The app downloads nothing automatically. Search and backups work without a model. See [model setup](MODELS.md).
 
 ```sh
 python3 server.py --engine /path/to/llama-completion --model /path/to/model.gguf

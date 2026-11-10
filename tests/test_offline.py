@@ -129,6 +129,50 @@ class OfflineTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 offline.import_files(self.db, [self.source(name, data)])
 
+    def test_generation_contract_uses_offline_mode_and_bounded_probe(self):
+        engine = self.source("engine.exe", b"synthetic")
+        engine.chmod(0o700)
+        model = self.source("model.gguf", b"GGUF synthetic")
+        class Process:
+            returncode = 0
+            def communicate(self, timeout=None):
+                return "4", ""
+            def poll(self):
+                return 0
+        with patch.object(offline.subprocess, "Popen", return_value=Process()) as popen:
+            self.assertEqual(offline.generate(engine, model, "2+2", max_tokens=64, timeout=60), "4")
+        args = popen.call_args.args[0]
+        self.assertIn("--offline", args)
+        self.assertEqual(args[args.index("-n") + 1], "64")
+        self.assertNotIn("shell", popen.call_args.kwargs)
+        self.assertFalse(any(k.startswith(("LLAMA_", "HF_")) for k in popen.call_args.kwargs["env"]))
+
+    def test_empty_reasoning_envelope_keeps_substantive_content(self):
+        engine = self.source("engine.exe", b"synthetic")
+        engine.chmod(0o700)
+        model = self.source("model.gguf", b"GGUF synthetic")
+        class Process:
+            returncode = 0
+            output = ""
+            def communicate(self, timeout=None):
+                return self.output, ""
+            def poll(self):
+                return 0
+        process = Process()
+        cases = [
+            ("<think>\n</think>\n\n4[end of text]", "4"),
+            ("<think>actual content</think>\n4", "<think>actual content</think>\n4"),
+            ("Example: <think></think>", "Example: <think></think>"),
+        ]
+        with patch.object(offline.subprocess, "Popen", return_value=process):
+            for raw, expected in cases:
+                with self.subTest(raw=raw):
+                    process.output = raw
+                    self.assertEqual(offline.generate(engine, model, "question"), expected)
+            process.output = "<think>\n</think>"
+            with self.assertRaisesRegex(ValueError, "no answer"):
+                offline.generate(engine, model, "question")
+
 
 if __name__ == "__main__":
     unittest.main()

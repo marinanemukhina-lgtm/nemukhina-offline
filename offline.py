@@ -126,7 +126,7 @@ def prompt_for(question, sources, language, mode):
     )
 
 
-def generate(engine, model, prompt, cancel_event=None):
+def generate(engine, model, prompt, cancel_event=None, *, max_tokens=512, timeout=180):
     engine, model = (
         Path(engine).expanduser().resolve(),
         Path(model).expanduser().resolve(),
@@ -139,6 +139,8 @@ def generate(engine, model, prompt, cancel_event=None):
         raise ValueError(
             "Context too large; use a narrower query or shorter source lines"
         )
+    if type(max_tokens) is not int or not 1 <= max_tokens <= 512 or not 0 < timeout <= 180:
+        raise ValueError("Invalid generation limits")
     # No shell; prompt never becomes an option. Environment download settings removed.
     environment = {
         k: v for k, v in os.environ.items() if not k.startswith(("LLAMA_", "HF_"))
@@ -155,8 +157,9 @@ def generate(engine, model, prompt, cancel_event=None):
                 str(file),
                 "--jinja",
                 "--single-turn",
+                "--offline",
                 "-n",
-                "512",
+                str(max_tokens),
                 "-c",
                 "4096",
                 "--seed",
@@ -176,13 +179,13 @@ def generate(engine, model, prompt, cancel_event=None):
             errors="replace",
             env=environment,
         )
-        deadline = time.monotonic() + 180
+        deadline = time.monotonic() + timeout
         try:
             while True:
                 if cancel_event is not None and cancel_event.is_set():
                     raise ValueError("cancelled")
                 if time.monotonic() >= deadline:
-                    raise subprocess.TimeoutExpired(str(engine), 180)
+                    raise subprocess.TimeoutExpired(str(engine), timeout)
                 try:
                     stdout, _ = process.communicate(timeout=0.2)
                     break
@@ -197,6 +200,9 @@ def generate(engine, model, prompt, cancel_event=None):
             "Local engine failed; check model compatibility and llama.cpp version"
         )
     answer = stdout.strip().removesuffix("[end of text]").rstrip()
+    # Qwen3 can prefix a direct answer with an empty reasoning envelope.
+    # Remove only that leading empty envelope; never discard nonempty content.
+    answer = re.sub(r"\A<think>\s*</think>\s*", "", answer, count=1)
     if not answer:
         raise ValueError("Local engine returned no answer")
     return answer
