@@ -1690,3 +1690,8 @@ hr {
         padding-top: 20px
     }
 }
+
+.setup-discovery { margin: 24px 0; }
+.setup-discovery select { width: 100%; min-width: 0; }
+.setup-probe { margin-top: 24px; padding: 20px; border: 1px solid var(--line, #d6d1c8); border-radius: 16px; }
+.probe-answer { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 160px; overflow: auto; padding: 12px; background: #f0ede7; border-radius: 8px; }

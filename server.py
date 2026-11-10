@@ -10,11 +10,13 @@ import threading
 import os
 import mimetypes
 import re
+import time
 from urllib.parse import urlsplit
 
 import library
 import offline
 import conversations
+import model_setup
 
 ROOT = Path(__file__).resolve().parent
 MAX_REQUEST = 8 * 1024 * 1024
@@ -39,12 +41,13 @@ class LocalServer(ThreadingHTTPServer):
         self.inference = threading.Lock()
         self.active_request = None
         self.cancel_event = threading.Event()
+        self.model_check = None
         super().__init__(address, Handler)
         self.origin = "http://127.0.0.1:" + str(self.server_port)
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "NemukhinaOffline/0.3"
+    server_version = "NemukhinaOffline/0.3.1"
 
     def setup(self):
         super().setup()
@@ -159,7 +162,9 @@ class Handler(BaseHTTPRequestHandler):
             self.send(400, {"error": code})
         except sqlite3.Error:
             self.send(503, {"error": "storage"})
-        except (OSError, offline.subprocess.TimeoutExpired):
+        except offline.subprocess.TimeoutExpired:
+            self.send(503, {"error": "engine_timeout"})
+        except OSError:
             self.send(503, {"error": "engine"})
 
     def dispatch(self, db, data):
@@ -180,43 +185,69 @@ class Handler(BaseHTTPRequestHandler):
                     Path(self.server.model).name if self.server.model else None
                 ),
                 "conversations": conversations.listing(db),
-                "version": "0.3.0",
+                "model_check": self.current_model_check(),
+                "version": "0.3.1",
             }
+        if path == "/api/model/options":
+            return dict(model_setup.discover(ROOT), configuration={
+                "engine": self.server.engine or "", "model": self.server.model or ""
+            })
         if path == "/api/model":
             if not self.server.inference.acquire(blocking=False):
                 raise ValueError("busy")
             try:
-                engine, model = data.get("engine"), data.get("model")
-                if (
-                    not isinstance(engine, str)
-                    or not isinstance(model, str)
-                    or len(engine) > 4096
-                    or len(model) > 4096
-                ):
-                    raise ValueError("invalid_request")
-                engine, model = (
-                    Path(engine).expanduser().resolve(),
-                    Path(model).expanduser().resolve(),
-                )
-                if (
-                    engine.name not in ("llama-completion", "llama-completion.exe")
-                    or not engine.is_file()
-                    or not os.access(str(engine), os.X_OK)
-                ):
-                    raise ValueError("engine_path")
-                if not model.is_file() or model.suffix.lower() != ".gguf":
-                    raise ValueError("model_path")
-                with model.open("rb") as stream:
-                    if stream.read(4) != b"GGUF":
-                        raise ValueError("model_path")
+                engine, model = model_setup.validate(data.get("engine"), data.get("model"))
                 with db:
                     db.executemany(
                         "INSERT OR REPLACE INTO settings VALUES (?,?)",
                         [("engine", str(engine)), ("model", str(model))],
                     )
                 self.server.engine, self.server.model = str(engine), str(model)
-                return {"ok": True, "model_name": model.name}
+                self.server.model_check = None
+                return {"ok": True, "model_name": Path(model).name}
             finally:
+                self.server.inference.release()
+        if path == "/api/model/check":
+            request_id = data.get("request_id")
+            if not isinstance(request_id, str) or not re.fullmatch(r"[a-f0-9]{32}", request_id):
+                raise ValueError("invalid_request")
+            if not self.server.engine or not self.server.model:
+                raise ValueError("no_model")
+            if not self.server.inference.acquire(blocking=False):
+                raise ValueError("busy")
+            self.server.cancel_event.clear()
+            self.server.active_request = request_id
+            self.server.model_check = None
+            try:
+                model_setup.validate(self.server.engine, self.server.model)
+                identity = model_setup.fingerprint(self.server.engine, self.server.model)
+                if identity is None:
+                    raise ValueError("model_changed")
+                started = time.monotonic()
+                try:
+                    answer = offline.generate(
+                        self.server.engine, self.server.model,
+                        "Calculate 2 + 2. Reply with only the number, without any explanation.",
+                        cancel_event=self.server.cancel_event, max_tokens=64, timeout=60,
+                    )
+                except ValueError as error:
+                    if str(error) == "cancelled":
+                        raise
+                    raise ValueError("engine") from None
+                if self.server.cancel_event.is_set():
+                    raise ValueError("cancelled")
+                if identity != model_setup.fingerprint(self.server.engine, self.server.model):
+                    raise ValueError("model_changed")
+                result = {
+                    "status": "passed" if re.fullmatch(r"\s*4[.!。]?\s*", answer) else "unexpected",
+                    "answer": answer[:2000],
+                    "elapsed_seconds": round(time.monotonic() - started, 2),
+                    "model_name": Path(self.server.model).name,
+                }
+                self.server.model_check = (identity, result)
+                return result
+            finally:
+                self.server.active_request = None
                 self.server.inference.release()
         if path == "/api/conversation":
             ident = data.get("id")
@@ -379,6 +410,12 @@ class Handler(BaseHTTPRequestHandler):
             }
         raise ValueError("not_found")
 
+    def current_model_check(self):
+        saved = self.server.model_check
+        if saved and saved[0] == model_setup.fingerprint(self.server.engine, self.server.model):
+            return saved[1]
+        return None
+
 
 ERROR_CODES = {
     "conversation_missing",
@@ -389,6 +426,7 @@ ERROR_CODES = {
     "context_limit",
     "engine_path",
     "model_path",
+    "model_changed",
     "no_sources",
     "cancelled",
     "answer_limit",

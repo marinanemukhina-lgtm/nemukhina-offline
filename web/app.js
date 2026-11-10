@@ -3,6 +3,24 @@ const $ = id => document.getElementById(id);
 const token = document.querySelector('meta[name="local-token"]').content;
 const strings = {
     ru: {
+        discoverModels: "Найти подготовленные файлы",
+        discoveryHint: "Можно положить распакованный движок в папку runtime, а модель — в models рядом с server.py. Поиск проверяет только эти папки.",
+        manualPath: "Указать путь вручную",
+        foundEngine: "Найденные движки",
+        foundModel: "Найденные модели",
+        nothingFound: "В папках runtime и models ничего не найдено. Укажите пути вручную или положите файлы туда и повторите поиск.",
+        filesFound: "Найденные файлы доступны в списках ниже.",
+        checkModel: "Проверить подключённую модель",
+        checkRunning: "Проверяю модель на коротком вопросе… До 60 секунд.",
+        checkPassed: "Модель ответила на контрольный вопрос.",
+        checkUnexpected: "Модель запустилась, но ответ отличается от ожидаемого. Проверьте её на своей задаче.",
+        checkHint: "Вопрос: 2 + 2. Ожидаемый ответ: 4. Это проверка запуска, а не оценка качества всех ответов. В историю диалогов она не добавляется.",
+        checkTime: "Время, с:",
+        checkAnswer: "Ответ модели",
+        checkCancel: "Остановить проверку",
+        verified: "Модель прошла проверку запуска в этой сессии.",
+        model_changed: "Файлы модели изменились во время проверки. Подключите их заново.",
+        engine_timeout: "Модель не успела ответить. Попробуйте меньшую модель или более короткий вопрос.",
         skip: 'К диалогу',
         navigation: 'Навигация',
         actions: 'Действия',
@@ -56,7 +74,7 @@ const strings = {
         setupSteps: 'Скачайте официальный выпуск llama.cpp для своей системы и распакуйте архив. Выберите совместимую инструктивную модель GGUF, проверьте её лицензию и требования к памяти. Укажите полные пути к файлам ниже. При первой загрузке модели нужен интернет; приложение ничего не скачивает автоматически.',
         enginePath: 'Путь к llama-completion',
         modelPath: 'Путь к модели .gguf',
-        saveModel: 'Подключить локальные файлы',
+        saveModel: "Подключить и проверить",
         yourData: 'Ваши данные',
         backupHint: 'Резервная копия включает диалоги и материалы. Восстановление добавляет отсутствующие записи, сохраняя текущие. Храните копию в безопасном месте.',
         backup: 'Скачать копию',
@@ -125,6 +143,24 @@ const strings = {
         clipboard: 'Не удалось скопировать автоматически. Выделите текст ответа и скопируйте его.'
     },
     en: {
+        discoverModels: "Find prepared files",
+        discoveryHint: "Place the extracted engine in runtime and the model in models beside server.py. Discovery checks only these folders.",
+        manualPath: "Enter path manually",
+        foundEngine: "Detected engines",
+        foundModel: "Detected models",
+        nothingFound: "No files found in runtime or models. Enter paths manually, or place files there and search again.",
+        filesFound: "Detected files are available in the lists below.",
+        checkModel: "Check connected model",
+        checkRunning: "Checking the model with a short question… Up to 60 seconds.",
+        checkPassed: "The model answered the check question.",
+        checkUnexpected: "The model ran, but its answer differs from the expected result. Test it on your own task.",
+        checkHint: "Question: 2 + 2. Expected answer: 4. This checks startup, not overall answer quality. It is not added to conversation history.",
+        checkTime: "Time, seconds:",
+        checkAnswer: "Model answer",
+        checkCancel: "Stop check",
+        verified: "The model passed a startup check in this session.",
+        model_changed: "Model files changed during the check. Connect them again.",
+        engine_timeout: "The model did not answer in time. Try a smaller model or a shorter question.",
         skip: 'Go to conversation',
         navigation: 'Navigation',
         actions: 'Actions',
@@ -178,7 +214,7 @@ const strings = {
         setupSteps: 'Download and extract an official llama.cpp release for your system. Choose a compatible GGUF instruction model and check its license and memory requirements. Enter absolute file paths below. Initial downloads require internet; this app never downloads automatically.',
         enginePath: 'Path to llama-completion',
         modelPath: 'Path to the .gguf model',
-        saveModel: 'Connect local files',
+        saveModel: "Connect and check",
         yourData: 'Your data',
         backupHint: 'Backups include conversations and materials. Restore merges missing records and preserves existing data. Keep backups somewhere safe.',
         backup: 'Download backup',
@@ -247,6 +283,24 @@ const strings = {
         clipboard: 'Automatic copy failed. Select and copy the answer text.'
     },
     zh: {
+        discoverModels: "查找已准备的文件",
+        discoveryHint: "将解压后的运行程序放入 server.py 旁的 runtime 文件夹，将模型放入 models 文件夹。仅搜索这两个文件夹。",
+        manualPath: "手动输入路径",
+        foundEngine: "找到的运行程序",
+        foundModel: "找到的模型",
+        nothingFound: "runtime 和 models 中没有找到文件。请手动输入路径，或放入文件后重新搜索。",
+        filesFound: "找到的文件已列在下方。",
+        checkModel: "检查已连接的模型",
+        checkRunning: "正在用简短问题检查模型… 最长 60 秒。",
+        checkPassed: "模型已回答检查问题。",
+        checkUnexpected: "模型已运行，但答案与预期不同。请用自己的任务进一步测试。",
+        checkHint: "问题：2 + 2。预期答案：4。这只检查运行情况，不代表整体回答质量。不会加入对话历史。",
+        checkTime: "耗时（秒）：",
+        checkAnswer: "模型回答",
+        checkCancel: "停止检查",
+        verified: "模型已通过本次会话的启动检查。",
+        model_changed: "检查期间模型文件发生了变化。请重新连接。",
+        engine_timeout: "模型未能及时回答。请尝试更小的模型或更短的问题。",
         skip: '跳转到对话',
         navigation: '导航',
         actions: '操作',
@@ -300,7 +354,7 @@ const strings = {
         setupSteps: '下载适合系统的官方 llama.cpp 版本并解压。选择兼容的 GGUF 指令模型，检查许可证及内存要求。在下方输入完整文件路径。首次下载需要网络；本应用不会自动下载。',
         enginePath: 'llama-completion 路径',
         modelPath: '.gguf 模型路径',
-        saveModel: '连接本地文件',
+        saveModel: "连接并检查",
         yourData: '您的数据',
         backupHint: '备份包含对话和资料。恢复时添加缺少的记录，保留现有数据。请妥善保管备份。',
         backup: '下载备份',
@@ -454,8 +508,10 @@ function translate() {
 }
 
 function renderModel() {
-    $('modelHint').textContent = t(state.model ? 'configured' : 'noModel');
+    $('modelHint').textContent = t(state.model_check?.status === 'passed' ? 'verified' : state.model ? 'configured' : 'noModel');
     $('modelLabel').textContent = state.model ? state.model_name : t('connect');
+    $('checkModel').disabled = !state.model || !!pending;
+    renderModelCheck();
 }
 
 function renderMessages() {
@@ -605,7 +661,7 @@ $('chatForm').onsubmit = event => {
     run(async () => {
         if (!state.model) {
             $('status').textContent = t('no_model');
-            $('settingsDialog').showModal();
+            await openSettings();
             return;
         }
         const question = $('question').value.trim();
@@ -689,7 +745,7 @@ $('lang').onchange = () => {
     translate();
 };
 document.querySelectorAll('dialog .close').forEach(button => button.onclick = () => button.closest('dialog').close());
-$('settings').onclick = $('modelHelp').onclick = () => $('settingsDialog').showModal();
+$('settings').onclick = $('modelHelp').onclick = () => run(openSettings);
 $('materials').onclick = $('attach').onclick = () => run(async () => {
     await refresh();
     $('materialsDialog').showModal();
@@ -844,8 +900,83 @@ $('useSources').onclick = () => {
     $('mode').onchange();
     $('query').focus();
 };
+function renderModelCheck() {
+    const result = state.model_check;
+    $('probeResult').hidden = !result;
+    if (!result) return;
+    $('probeSummary').textContent = t(result.status === 'passed' ? 'checkPassed' : 'checkUnexpected');
+    $('probeTime').textContent = t('checkTime') + ' ' + result.elapsed_seconds;
+    $('probeAnswer').textContent = result.answer;
+}
+async function openSettings() {
+    $('settingsDialog').showModal();
+    const options = await api('model/options');
+    if (!$('enginePath').value) $('enginePath').value = options.configuration.engine;
+    if (!$('modelPath').value) $('modelPath').value = options.configuration.model;
+}
+$('discoverModels').onclick = () => run(async () => {
+    const options = await api('model/options');
+    for (const [key, selectId] of [['engines', 'engineChoice'], ['models', 'modelChoice']]) {
+        const select = $(selectId);
+        select.replaceChildren();
+        const manual = el('option', t('manualPath'));
+        manual.value = '';
+        select.append(manual);
+        for (const file of options[key]) {
+            const option = el('option', file.name);
+            option.value = file.path;
+            select.append(option);
+        }
+    }
+    const found = options.engines.length + options.models.length > 0;
+    $('discoveredModels').hidden = !found;
+    $('settingsStatus').textContent = t(found ? 'filesFound' : 'nothingFound');
+});
+$('engineChoice').onchange = () => {
+    if ($('engineChoice').value) $('enginePath').value = $('engineChoice').value;
+};
+$('modelChoice').onchange = () => {
+    if ($('modelChoice').value) $('modelPath').value = $('modelChoice').value;
+};
+async function checkConnectedModel() {
+    if (pending || !state.model) return;
+    pending = crypto.randomUUID().replaceAll('-', '');
+    setBusy(true);
+    $('modelForm').querySelectorAll('input, button').forEach(n => n.disabled = true);
+    ['discoverModels', 'engineChoice', 'modelChoice', 'checkModel'].forEach(id => $(id).disabled = true);
+    $('cancelCheck').hidden = false;
+    $('cancelCheck').disabled = false;
+    $('probeResult').hidden = true;
+    $('settingsStatus').textContent = t('checkRunning');
+    $('status').textContent = t('checkRunning');
+    try {
+        await api('model/check', {request_id: pending});
+        await refresh();
+        $('settingsStatus').textContent = '';
+        $('status').textContent = '';
+    } catch (error) {
+        await refresh().catch(() => {});
+        $('settingsStatus').textContent = t(error.message);
+        $('status').textContent = t(error.message);
+    } finally {
+        pending = null;
+        setBusy(false);
+        $('modelForm').querySelectorAll('input, button').forEach(n => n.disabled = false);
+        ['discoverModels', 'engineChoice', 'modelChoice'].forEach(id => $(id).disabled = false);
+        $('cancelCheck').hidden = true;
+        renderModel();
+    }
+}
+$('cancelCheck').onclick = () => run(async () => {
+    if (!pending) return;
+    await api('chat/cancel', {request_id: pending});
+    $('cancelCheck').disabled = true;
+    $('settingsStatus').textContent = t('stopping');
+});
+$('checkModel').onclick = () => run(checkConnectedModel);
 $('modelForm').onsubmit = event => {
     event.preventDefault();
+    if (pending) return;
     run(async () => {
         try {
             await api('model', {
@@ -853,8 +984,7 @@ $('modelForm').onsubmit = event => {
                 model: $('modelPath').value.trim()
             });
             await refresh();
-            $('settingsStatus').textContent = t('setupSaved');
-            $('status').textContent = '';
+            await checkConnectedModel();
         } catch (error) {
             $('settingsStatus').textContent = t(error.message);
         }

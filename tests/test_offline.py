@@ -132,3 +132,21 @@ class OfflineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_generation_contract_uses_offline_mode_and_bounded_probe(self):
+        engine = self.source("engine.exe", b"synthetic")
+        engine.chmod(0o700)
+        model = self.source("model.gguf", b"GGUF synthetic")
+        class Process:
+            returncode = 0
+            def communicate(self, timeout=None):
+                return "4", ""
+            def poll(self):
+                return 0
+        with patch.object(offline.subprocess, "Popen", return_value=Process()) as popen:
+            self.assertEqual(offline.generate(engine, model, "2+2", max_tokens=64, timeout=60), "4")
+        args = popen.call_args.args[0]
+        self.assertIn("--offline", args)
+        self.assertEqual(args[args.index("-n") + 1], "64")
+        self.assertNotIn("shell", popen.call_args.kwargs)
+        self.assertFalse(any(k.startswith(("LLAMA_", "HF_")) for k in popen.call_args.kwargs["env"]))
